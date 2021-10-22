@@ -86,7 +86,11 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
         // int index = (int) Math.random() * n;
         int index = StdRandom.uniform(q.length);
-        Item returnItem =  q[(first + index) % q.length];
+        Item returnItem = q[index];
+        while (returnItem == null) {
+            index = (index + 1) % q.length;
+            returnItem = q[index];
+        }
         q[index] = null;
         n--;
 
