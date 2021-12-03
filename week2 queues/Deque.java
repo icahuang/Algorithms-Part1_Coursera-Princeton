@@ -47,11 +47,12 @@ public class Deque<Item> implements Iterable<Item> {
             if (!hasNext()) throw new NoSuchElementException();
 
             Item item = current.item;
-            current = current.next;
+            current = current.prev;
             return item;
         }
     }
 
+    // 此版本中，first在右侧，last在左侧
     // is the deque empty?
     public boolean isEmpty() {
         return n == 0;
@@ -69,11 +70,11 @@ public class Deque<Item> implements Iterable<Item> {
         Node oldFirst = first;
         first = new Node();
         first.item = item;
-        first.prev = null;
-        first.next = oldFirst;
+        first.prev = oldFirst;
+        first.next = null;
 
         if (isEmpty()) last = first;
-        else oldFirst.prev = first;
+        else oldFirst.next = first;
 
         n++;
     }
@@ -85,11 +86,11 @@ public class Deque<Item> implements Iterable<Item> {
         Node oldLast = last;
         last = new Node();
         last.item = item;
-        last.prev = oldLast;
-        last.next = null;
+        last.prev = null;
+        last.next = oldLast;
 
         if (isEmpty()) first = last;
-        else oldLast.next = last;
+        else oldLast.prev = last;
 
         n++;
     }
@@ -99,7 +100,13 @@ public class Deque<Item> implements Iterable<Item> {
         if (isEmpty()) throw new NoSuchElementException();
 
         Item item = first.item;
-        first = first.next;
+        first = first.prev;
+        if (first != null) {
+            first.next = null;
+        } else {
+            // when (first == null), the whole deque is empty. So we need to set "last" to null to remove the element
+            last = null;
+        }
         n--;
         return item;
     }
@@ -109,7 +116,13 @@ public class Deque<Item> implements Iterable<Item> {
         if (isEmpty()) throw new NoSuchElementException();
 
         Item item = last.item;
-        last = last.prev;
+        last = last.next;
+        if (last != null) {
+            last.prev = null;
+        } else {
+            // when (last == null), the whole deque is empty. So we need to set "first" to null to remove the element
+            first = null;
+        }
         n--;
         return item;
     }
@@ -117,18 +130,31 @@ public class Deque<Item> implements Iterable<Item> {
     // unit testing (required)
     public static void main(String[] args) {
         Deque<Integer> deque = new Deque<Integer>();
+
+        deque.addFirst(11);
+        int re = deque.removeLast();
+        System.out.println(re);
+        deque.addLast(22);
+        deque.removeLast();
+
         int n = 10;
         for (int i = 0; i < n; i++)
             deque.addFirst(i);
         StdOut.println("Is the deque empty? : " + deque.isEmpty());
         StdOut.println("What's the size of the queue? : " + deque.size());
+        StdOut.println();
 
-        for (int i = 0; i < n; i++)
+        for (int i : deque) {
+            StdOut.print(i + " ");
+        }
+        StdOut.println();
+
+        for (int i = 0; i < n / 2; i++) {
+            StdOut.println(deque.removeFirst());
             StdOut.println(deque.removeLast());
+        }
 
         StdOut.println("What's the size of the queue? : " + deque.size());
         StdOut.println("Is the deque empty? : " + deque.isEmpty());
-
-        String a;
     }
 }
