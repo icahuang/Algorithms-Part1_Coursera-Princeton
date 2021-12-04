@@ -16,19 +16,14 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     private Item[] q;       // ATTENTION: the length of q is not always equal to "n"
     private int n;          // number of elements in queue
-    private int first;      // index of first element of queue, in the front of the array at the beginning
-    private int last;       // index of next available slot
 
-    // need to add a index to ...
-    private int nullIndex = 0;
+    private int currentEmptyIndex;  // need to add a index pointing to the empty box in array
 
     // construct an empty randomized queue ✅
     public RandomizedQueue() {
         q = (Item[]) new Object[INIT_CAPACITY];
         n = 0;
-        nullIndex = 0;
-        first = 0;
-        last = 0;
+        currentEmptyIndex = 0;
     }
 
     // is the randomized queue empty? ✅
@@ -39,6 +34,23 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     // return the number of items on the randomized queue ✅
     public int size() {
         return n;
+    }
+
+    // associate function for enqueue(Item item)
+    private void updateCurrentEmptyIndex() {
+        while (q[currentEmptyIndex] != null) {
+            currentEmptyIndex = (currentEmptyIndex + 1) % q.length;
+        }
+    }
+
+    // associate function for dequeue() and sample()
+    private int findRandomIndex() {
+        int index = StdRandom.uniform(q.length);
+        while (q[index] == null) {
+            index = (index + 1) % q.length;
+        }
+
+        return index;
     }
 
     // resize the queue ✅
@@ -53,44 +65,41 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         int copyCount = 0;      // index of copy[]
         int qIndex = 0;      // to access all elements in q[]
         while (copyCount < n) {
-            if (q[(first + qIndex) % q.length] != null) {
-                copy[copyCount] = q[(first + qIndex) % q.length];
+            if (q[qIndex] != null) {
+                copy[copyCount] = q[qIndex];
                 copyCount++;
             }
             qIndex++;
         }
 
         q = copy;
-        first = 0;
-        last = n;
     }
 
     // add the item ✅
     public void enqueue(Item item) {
         if (item == null) throw new IllegalArgumentException("The input item is null.");
 
-        q[last++] = item;
-        if (last == q.length) last = 0;     // wrap-around
+        q[currentEmptyIndex] = item;
         n++;
-        if (n == q.length) resize(2 * q.length);
+
+        if (n == q.length) {
+            resize(q.length * 2);
+            currentEmptyIndex = n;
+        } else {
+            updateCurrentEmptyIndex();
+        }
     }
 
-    // remove and return a random item ✅
+    // remove and return a random item
     public Item dequeue() {
         if (isEmpty()) throw new NoSuchElementException("No element in queue.");
 
-        // Item returnItem = q[first];
-        // q[first] = null;
-        // first++;
-        // if (first == q.length) first = 0;
-
         // int index = (int) Math.random() * n;
-        int index = StdRandom.uniform(q.length);
+        // int index = StdRandom.uniform(q.length);
+
+        int index = findRandomIndex();
+
         Item returnItem = q[index];
-        while (returnItem == null) {
-            index = (index + 1) % q.length;
-            returnItem = q[index];
-        }
         q[index] = null;
         n--;
 
@@ -100,22 +109,19 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         return returnItem;
     }
 
-    // return a random item (but do not remove it) ✅
+    // return a random item (but do not remove it)
     public Item sample() {
         if (isEmpty()) throw new NoSuchElementException("No element in queue.");
 
-        // Need to make sure that index doesn't point to a null element in q[]
         // int index = (int) Math.random() * q.length;
-        int index = StdRandom.uniform(q.length);
-        Item returnItem = q[index];
-        while (returnItem == null) {
-            index = (index + 1) % q.length;
-            returnItem = q[index];
-        }
-        return returnItem;
+        // int index = StdRandom.uniform(q.length);
+
+        int index = findRandomIndex();
+
+        return q[index];
     }
 
-    // return an independent iterator over items in random order ✅
+    // return an independent iterator over items in random order
     public Iterator<Item> iterator() {
         return new RandomizedQueueIterator();
     }
@@ -148,17 +154,36 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     public static void main(String[] args) {
-        int n = 5;
+        RandomizedQueue<Integer> queue1 = new RandomizedQueue<Integer>();
+
+        for (int i = 0; i < 100; i++) {
+            queue1.enqueue(i);
+        }
+
+
+        for (int i = 0; i < 100; i++) {
+            // if (i % 3 == 0) {
+                System.out.print(queue1.dequeue() + "." + "(i=" + i +")" + " ");
+                // System.out.print(queue1.sample() + ", ");
+            // }
+        }
+        System.out.println();
+        System.out.println("the size of queue: " + queue1.size());
+
         RandomizedQueue<Integer> queue = new RandomizedQueue<Integer>();
-        for (int i = 0; i < n; i++)
+        int n = 5;
+        // test iterator
+        for (int i = 0; i < n; i++) {
             queue.enqueue(i);
+        }
         for (int a : queue) {
-            for (int b : queue)
+            for (int b : queue) {
                 StdOut.print(a + "-" + b + " ");
+            }
             StdOut.println();
         }
         /*
-            It should produce a result like the following:
+            It should produce a result like the following:(but the order might be different.)
             0-2 0-1 0-3 0-0 0-4
             1-2 1-1 1-4 1-0 1-3
             2-1 2-4 2-0 2-3 2-2
