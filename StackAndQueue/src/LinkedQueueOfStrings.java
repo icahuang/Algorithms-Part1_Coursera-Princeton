@@ -1,6 +1,7 @@
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class LinkedQueueOfStrings {
+public class LinkedQueueOfStrings implements Iterable<String> {
     private int n;
     // Q. Why we need the variable "last"?
     // A. 我们要将新的item加入到链表尾，所以需要"last"，否则需要从"first"开始遍历都最后一个Node，当链表很长时，时间会久。
@@ -59,15 +60,49 @@ public class LinkedQueueOfStrings {
         return n == 0;
     }
 
+    @Override
+    public Iterator<String> iterator() {
+        return new LinkedIterator();
+    }
+
+    private class LinkedIterator implements Iterator<String> {
+        private Node current = first;
+
+        @Override
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        @Override
+        public String next() {
+            String item = current.item;
+            current = current.next;
+            return item;
+        }
+
+        @Override
+        public void remove() { throw new UnsupportedOperationException(); }
+    }
+
     static public void main(String[] args) {
         LinkedQueueOfStrings queue = new LinkedQueueOfStrings();
         int length = 20;
         for (int i = 0; i < length; i++) {
             queue.enqueue(Integer.toString(i));
         }
+
+        System.out.println("------iterable test--------");
+        for (String s : queue) {
+            System.out.print(s + " ");
+        }
+        System.out.println("\n----------------------\n");
+
+        System.out.println("------pop test--------");
         for (int i = 0; i < length - 2; i++) {
             System.out.print(queue.dequeue() + " ");
         }
+        System.out.println("\n----------------------\n");
+
         System.out.println();
         System.out.println("The size of queue: " + queue.size());
         System.out.println("Is empty? " + queue.isEmpty());
