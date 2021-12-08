@@ -55,12 +55,16 @@ public class LinkedStackOfStrings implements Iterable<String> {
         private Node current = first;
 
         public boolean hasNext() { return current != null; }
+
         public String next()
         {
             String item = current.item;
             current = current.next;
             return item;
         }
+
+        @Override
+        public void remove() { throw new UnsupportedOperationException(); }
     }
 
     public static void main(String[] args) {
