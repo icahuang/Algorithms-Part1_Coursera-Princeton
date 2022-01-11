@@ -1,6 +1,5 @@
 import edu.princeton.cs.algs4.In;
-
-import java.util.Iterator;
+import edu.princeton.cs.algs4.Queue;
 
 public class Board {
     int[][] tiles;
@@ -125,93 +124,149 @@ public class Board {
     }
 
     // all neighboring boards
+    // public Iterable<Board> neighbors() {
+    //     return new Iterable<Board>() {
+    //         public Iterator<Board> iterator() {
+    //             return new BoardIterator();
+    //         }
+    //     };
+    // }
+    //
+    // class BoardIterator implements Iterator<Board> {
+    //     Board[] neighborsBoard;
+    //     int currentCount = 0;
+    //     int neighborsCount;
+    //
+    //     BoardIterator() {
+    //         int zeroRow = -1;
+    //         int zeroCol = -1;
+    //         for (int i = 0; i < n; i++) {
+    //             for (int j = 0; j < n; j++) {
+    //                 if (tiles[i][j] == 0) {
+    //                     zeroRow = i;
+    //                     zeroCol = j;
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //         neighborsCount = 4;
+    //         if (zeroRow == 0 || zeroRow == n - 1) {
+    //             neighborsCount--;
+    //         }
+    //         if (zeroCol == 0 || zeroCol == n - 1) {
+    //             neighborsCount--;
+    //         }
+    //
+    //         int count = 0;
+    //         neighborsBoard = new Board[neighborsCount];
+    //         if (zeroRow > 0) {
+    //            int[][] upExchange = dulplicateTiles();
+    //            exchange(upExchange, zeroRow, zeroCol, zeroRow - 1, zeroCol);
+    //            neighborsBoard[count] = new Board(upExchange);
+    //            count++;
+    //         }
+    //         if (zeroRow < n - 1) {
+    //             int[][] downExchange = dulplicateTiles();
+    //             exchange(downExchange, zeroRow, zeroCol, zeroRow + 1, zeroCol);
+    //             neighborsBoard[count] = new Board(downExchange);
+    //             count++;
+    //         }
+    //         if (zeroCol > 0) {
+    //             int[][] leftExchange = dulplicateTiles();
+    //             exchange(leftExchange, zeroRow, zeroCol, zeroRow, zeroCol - 1);
+    //             neighborsBoard[count] = new Board(leftExchange);
+    //             count++;
+    //         }
+    //         if (zeroCol < n - 1) {
+    //             int[][] rightExchange = dulplicateTiles();
+    //             exchange(rightExchange, zeroRow, zeroCol, zeroRow, zeroCol + 1);
+    //             neighborsBoard[count] = new Board(rightExchange);
+    //             count++;
+    //         }
+    //     }
+    //
+    //     private int[][] dulplicateTiles() {
+    //         int[][] newTiles = new int[n][n];
+    //         for (int i = 0; i < n; i++) {
+    //             for (int j = 0; j < n; j++) {
+    //                 newTiles[i][j] = tiles[i][j];
+    //             }
+    //         }
+    //         return newTiles;
+    //     }
+    //
+    //
+    //     private void exchange (int[][] a, int row1, int col1, int row2, int col2) {
+    //         int exch = a[row1][col1];
+    //         a[row1][col1] = a[row2][col2];
+    //         a[row2][col2] = exch;
+    //     }
+    //
+    //     public boolean hasNext() {
+    //         if (currentCount < neighborsCount) {
+    //             return true;
+    //         }
+    //         return false;
+    //     }
+    //
+    //     public Board next() {
+    //         return neighborsBoard[currentCount++];
+    //     }
+    // }
+
+    // all neighboring boards
     public Iterable<Board> neighbors() {
-        return new Iterable<Board>() {
-            public Iterator<Board> iterator() {
-                return new BoardIterator();
-            }
-        };
-    }
-
-    class BoardIterator implements Iterator<Board> {
-        Board[] neighborsBoard;
-        int currentCount = 0;
-        int neighborsCount;
-
-        BoardIterator() {
-            int zeroRow = -1;
-            int zeroCol = -1;
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++) {
-                    if (tiles[i][j] == 0) {
-                        zeroRow = i;
-                        zeroCol = j;
-                        break;
-                    }
+        int zeroRow = -1;
+        int zeroCol = -1;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (tiles[i][j] == 0) {
+                    zeroRow = i;
+                    zeroCol = j;
+                    break;
                 }
             }
-            neighborsCount = 4;
-            if (zeroRow == 0 || zeroRow == n - 1) {
-                neighborsCount--;
-            }
-            if (zeroCol == 0 || zeroCol == n - 1) {
-                neighborsCount--;
-            }
+        }
 
-            int count = 0;
-            neighborsBoard = new Board[neighborsCount];
+        // Stack<Board> iteratorBoard = new Stack<Board>();
+        Queue<Board> iteratorBoard = new Queue<Board>();
             if (zeroRow > 0) {
                int[][] upExchange = dulplicateTiles();
                exchange(upExchange, zeroRow, zeroCol, zeroRow - 1, zeroCol);
-               neighborsBoard[count] = new Board(upExchange);
-               count++;
+               iteratorBoard.enqueue(new Board(upExchange));
             }
             if (zeroRow < n - 1) {
                 int[][] downExchange = dulplicateTiles();
                 exchange(downExchange, zeroRow, zeroCol, zeroRow + 1, zeroCol);
-                neighborsBoard[count] = new Board(downExchange);
-                count++;
+                iteratorBoard.enqueue(new Board(downExchange));
             }
             if (zeroCol > 0) {
                 int[][] leftExchange = dulplicateTiles();
                 exchange(leftExchange, zeroRow, zeroCol, zeroRow, zeroCol - 1);
-                neighborsBoard[count] = new Board(leftExchange);
-                count++;
+                iteratorBoard.enqueue(new Board(leftExchange));
             }
             if (zeroCol < n - 1) {
                 int[][] rightExchange = dulplicateTiles();
                 exchange(rightExchange, zeroRow, zeroCol, zeroRow, zeroCol + 1);
-                neighborsBoard[count] = new Board(rightExchange);
-                count++;
+                iteratorBoard.enqueue(new Board(rightExchange));
+            }
+            return iteratorBoard;
+    }
+
+    private int[][] dulplicateTiles() {
+        int[][] newTiles = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                newTiles[i][j] = tiles[i][j];
             }
         }
+        return newTiles;
+    }
 
-        private int[][] dulplicateTiles() {
-            int[][] newTiles = new int[n][n];
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++) {
-                    newTiles[i][j] = tiles[i][j];
-                }
-            }
-            return newTiles;
-        }
-
-        private void exchange (int[][] a, int row1, int col1, int row2, int col2) {
-            int exch = a[row1][col1];
-            a[row1][col1] = a[row2][col2];
-            a[row2][col2] = exch;
-        }
-
-        public boolean hasNext() {
-            if (currentCount < neighborsCount) {
-                return true;
-            }
-            return false;
-        }
-
-        public Board next() {
-            return neighborsBoard[currentCount++];
-        }
+    private void exchange (int[][] a, int row1, int col1, int row2, int col2) {
+        int exch = a[row1][col1];
+        a[row1][col1] = a[row2][col2];
+        a[row2][col2] = exch;
     }
 
     // a board that is obtained by exchanging any pair of tiles
